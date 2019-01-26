@@ -1,36 +1,106 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-</head>
-<body>
-	<div class="jumbotron text-center">
-		<h1>Ray 的 Discord 洨幫手機器人</h1>
-	</div>
-	
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8">
-			<h1>指令</h1>
-				<p>傳一些指令給洨幫手，讓他不會無聊！</p>
-				查看指令: <code>!help</code><br/>
-				點歌: <code>!play Youtube URL</code><br/>
-				天氣: <code>!weather 城市名</code><br/>
-				伺服器狀態: <code>!serverinfo</code>
-			</div>
-			<div class="col-md-4">
-				<h1>邀請洨幫手</h1>
-				<p>讓你的 Discord 伺服器不再單調無趣！</p>
-				<p><a href="https://65535.pw/raydbot" class="btn btn-outline-success btn-block">點此邀請</a></p>
-				<hr>
-				<h5>邀請網址</h5>
-				<input class="form-control" value="https://65535.pw/raydbot">
-			</div>
-		</div>
-	</div>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Ray 的 Discord 洨幫手機器人</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Ray洨幫手</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="http://65535.pw/raydbot">邀請 Bot</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/raylee930/discord-bot">View on GitHub</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+
+      <div class="row">
+
+        <!-- Post Content Column -->
+        <div class="col-lg-8">
+
+          <!-- Title -->
+          <h1 class="mt-4">Ray 的 Discord 洨幫手機器人</h1>
+
+          <hr>
+
+          <!-- Post Content -->
+          <p>傳一些指令給洨幫手，讓他不會無聊！</p>
+			<ul>
+			  <li><p>查看指令: <code>!help</code></p></li>
+			  
+			  <li><p>點歌: <code>!play URL/VID</code> <a href="#" data-toggle="collapse" data-target="#music">更多..</button></a></li>
+			    <div id="music" class="collapse">範例:
+				    <ol>
+				    <li>URL: <code>!play https://www.youtube.com/watch?v=<b>dvgZkm1xWPE</b></code></li>
+					<li>Video ID: <code>!play <b>dvgZkm1xWPE</b></code></li>
+					<li>歌曲名稱: <code>!play Viva La Vida</code></li>
+			        </ol>
+				</div>
+			    </p>
+			  <li><p>天氣: <code>!weather CityName</code> <a href="#" data-toggle="collapse" data-target="#weather">更多..</button></a></li>
+			      <div id="weather" class="collapse">範例:
+				    <ol>
+				      <li><code>!weather Taipei</code></li>
+			        </ol>
+				  </div>
+			    </p>
+			  <li><p>伺服器狀態: <code>!serverinfo</code></p></li>
+			</ul>
+
+        </div>
+
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+
+          <div class="card my-4">
+            <h5 class="card-header">邀請機器人</h5>
+            <div class="card-body">
+                <p>讓你的 Discord 伺服器不再單調無趣！</p>
+                <p><a href="https://65535.pw/raydbot" class="btn btn-outline-success btn-block">點此邀請</a></p>
+            </div>
+          </div>
+
+		  <div class="card my-4">
+            <h5 class="card-header">邀請連結</h5>
+            <div class="card-body">
+                <input class="form-control" value="https://65535.pw/raydbot">
+            </div>
+          </div>
+		  
+		  <div class="card my-4">
+            <div class="card-body">
+                <p class="m-0 text-center ">Created by <a href="https://raylee930.pw">Ray Lee</a>. | 2019-01-26</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
