@@ -7,13 +7,14 @@ const client = new Discord.Client();
 const active = new Map();
 const ytdl = require('ytdl-core');
 const search = require('yt-search');
+const configs = require("./configs.json");
 var botConfigs = {
-    token: "Token", //Bot Token
+    token: "", //Bot Token
     prefix: "!", //指令前綴
-    gameStatus: "Game name", //Bot 遊玩的遊戲名稱
-    commands: [{"id":1,"command":"test","message":"Hello world!","embed":false}],
-    plugins: [{"id":0,"name":"Purge messages","activated":false,"config":"","info":{"example":"!purge 20","note":"","requirements":"Create a logs channel"}},{"id":1,"name":"Welcome message","activated":false,"config":"welcomemessage","info":{"example":"","note":"","requirements":"Create a channel"}},{"id":2,"name":"Kick user","activated":false,"config":"","info":{"example":"!kick @user spam","note":"","requirements":"Create a logs channel"}},{"id":3,"name":"Ban user","activated":false,"config":"","info":{"example":"!ban @user spam","note":"","requirements":"Create a logs channel"}},{"id":4,"name":"Report user","activated":false,"config":"","info":{"example":"!report @user spam","note":"","requirements":"Create a logs channel"}},{"id":5,"name":"Temp mute user","activated":false,"config":"","info":{"example":"!tempmute @user 10s","note":"s = seconds, m = minutes, h = hours","requirements":"Create a logs channel"}},{"id":6,"name":"Server info","activated":false,"config":"","info":{"example":"!serverinfo","note":"","requirements":""}},{"id":7,"name":"Weather info","activated":false,"config":"weather","info":{"example":"!weather Copenhagen","note":"","requirements":""}},{"id":8,"name":"Music","activated":false,"config":"","info":{"example":"!play {YouTube URL}, !leave, !pause, !resume, !queue, !skip","note":"Export only","requirements":""}}],
-    welcomemessage: {"channelid":"1234567890","text":"Welcome to server!"}, //成員加入伺服器的歡迎訊息
+    gameStatus: "GameName",  //遊玩的遊戲名稱
+    commands: [{"id":1,"command":"test","message":"Hello world!","embed":false},{"id":2,"command":"embed","message":"","embed":true,"embedFields":[{"title":"Title","text":"Content"}]}],
+    plugins: [{"id":0,"name":"Purge messages","activated":false,"config":"","info":{"example":"!purge 20","note":"","requirements":"Create a logs channel"}},{"id":1,"name":"Welcome message","activated":false,"config":"welcomemessage","info":{"example":"","note":"","requirements":"Create a channel"}},{"id":2,"name":"Kick user","activated":false,"config":"","info":{"example":"!kick @user spam","note":"","requirements":"Create a logs channel"}},{"id":3,"name":"Ban user","activated":false,"config":"","info":{"example":"!ban @user spam","note":"","requirements":"Create a logs channel"}},{"id":4,"name":"Report user","activated":false,"config":"","info":{"example":"!report @user spam","note":"","requirements":"Create a logs channel"}},{"id":5,"name":"Temp mute user","activated":false,"config":"","info":{"example":"!tempmute @user 10s","note":"s = seconds, m = minutes, h = hours","requirements":"Create a logs channel"}},{"id":6,"name":"Server info","activated":false,"config":"","info":{"example":"!serverinfo","note":"","requirements":""}},{"id":7,"name":"Weather info","activated":false,"config":"weather","info":{"example":"!weather Copenhagen","note":"","requirements":""}},{"id":8,"name":"Music","activated":false,"config":"","info":{"example":"!play {YouTube URL}, !leave, !pause, !resume, !queue, !skip","note":"Export only","requirements":""}},{"id":9,"name":"Channel lockdown","activated":false,"config":"","info":{"example":"!lockdown 10s","note":"s = seconds, m = minutes, h = hours","requirements":""}},{"id":10,"name":"Shutdown command","activated":false,"config":"","info":{"example":"!shutdown","note":"","requirements":""}},{"id":11,"name":"Banned words","activated":false,"config":"","info":{"example":"","note":"Auto delete messages contained banned words","requirements":""}}],
+    welcomemessage: {"channelid":"1234567890","text":"Welcome to this Server!"}, //成員加入伺服器的歡迎訊息
     weather: {"degree":"C"} //天氣單位
 };
 
@@ -37,11 +38,20 @@ client.on("guildMemberAdd", async function (member) {
   if (botConfigs.plugins[1].activated == true) {
     member.guild.channels
       .get(botConfigs.welcomemessage.channelid)
-      .send(`${member}, ` + botConfigs.welcomemessage.text);
+      .send(`${member}, ${botConfigs.welcomemessage.text}`);
   }
 });
 
 client.on("message", async function (message) {
+	if (botConfigs.plugins[11].activated == true) {
+	    configs.bannedWords.forEach(element => {
+	        if (message.content.includes(element)) {
+	            message.delete().catch(O_o => { });
+	            message.author.send("Stop shit talking!");
+	            return;
+	        }
+	    });
+	}
 
   let prefix = botConfigs.prefix;
 
@@ -265,6 +275,66 @@ client.on("message", async function (message) {
     });
   }
 
+  if (command === "lockdown" && botConfigs.plugins[9].activated == true) {
+    let time = args[0];
+
+    if (!client.lockit) { client.lockit = []; }
+    let validUnlocks = ["release", "unlock", "u"];
+    if (!time) { return message.reply("I need a set time to lock the channel down for!"); }
+
+    const Lockembed = new Discord.RichEmbed()
+        .setColor(0xDD2E44)
+        .setTimestamp()
+        .setTitle("🔒 LOCKDOWN NOTICE 🔒")
+        .setDescription(`This channel has been lockdown by ${message.author.tag} for ${time}`);
+
+    const Unlockembed = new Discord.RichEmbed()
+        .setColor(0xDD2E44)
+        .setTimestamp()
+        .setTitle("🔓 LOCKDOWN NOTICE 🔓")
+        .setDescription("This channel is now unlocked.");
+
+    if (message.channel.permissionsFor(message.author.id).has("MUTE_MEMBERS") === false) {
+        const embed = new Discord.RichEmbed()
+            .setColor(0xDD2E44)
+            .setTimestamp()
+            .setTitle("❌ ERROR: MISSING PERMISSIONS! ❌")
+            .setDescription("You do not have the correct permissions for this command!");
+        return message.channel.send({ embed });
+    }
+
+    if (validUnlocks.includes(time)) {
+        message.channel.overwritePermissions(message.guild.id, { SEND_MESSAGES: null }).then(() => {
+            message.channel.send({ embed: Unlockembed });
+            clearTimeout(client.lockit[message.channel.id]);
+            delete client.lockit[message.channel.id];
+        }).catch(error => { console.log(error); });
+    } else {
+        message.channel.overwritePermissions(message.guild.id, { SEND_MESSAGES: false }).then(() => {
+            message.channel.send({ embed: Lockembed }).then(() => {
+                client.lockit[message.channel.id] = setTimeout(() => {
+                    message.channel.overwritePermissions(message.guild.id, {
+                        SEND_MESSAGES: null
+                    }).then(message.channel.send({ embed: Unlockembed })).catch(console.error);
+                    delete client.lockit[message.channel.id];
+                }, ms(time));
+            }).catch(error => { console.log(error); });
+        });
+    }
+  }
+
+  if (command === "ping") {
+      const msg = await message.channel.send("Pinging...");
+      await msg.edit(`Pong! (Took: ${msg.createdTimestamp - message.createdTimestamp}ms.)`);
+  }
+
+  if (command === "shutdown" && botConfigs.plugins[10].activated == true) {
+      if (!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send("You don't have permission!");
+      await message.channel.send(`Good night, ${message.author.tag}!`);
+      await message.delete().catch();
+      await process.exit().catch((e) => { console.error(e); });
+  }
+
   if (command === "leave" && botConfigs.plugins[8].activated == true || command === "stop" && botConfigs.plugins[8].activated == true) {
     if (!message.member.voiceChannel) return message.channel.send('Please connect to a voice channel.');
     if (!message.guild.me.voiceChannel) return message.channel.send('Sorry, the bot isn\'t connected to the guild');
@@ -316,7 +386,7 @@ client.on("message", async function (message) {
 
     if (!data.dispatcher) play(client, ops, data);
     else {
-      message.channel.send(`Added To Queue: ${info.title} | Requested By: ${message.author.id}`);
+      message.channel.send(`Added To Queue: ${info.title} | Requested By: ${message.author.tag}`);
     }
 
     ops.active.set(message.guild.id, data);
@@ -537,7 +607,7 @@ async function playYT(client, message, args, ops) {
   if (!data.dispatcher) play(client, ops, data);
   else {
 
-    message.channel.send(`Added To Queue: ${info.title} | Requested By: ${message.author.id}`);
+    message.channel.send(`Added To Queue: ${info.title} | Requested By: ${message.author.tag}`);
   }
 
   ops.active.set(message.guild.id, data);
