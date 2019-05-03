@@ -5,12 +5,13 @@
   "description": "Discord Bot - Controls",
   "main": "bot.js",
   "author": {
-    "name": "Kasper Rasmussen"
+    "name": "DBC"
   },
   "scripts": {
     "start": "node bot"
   },
   "dependencies": {
+    "console-timestamp": "^0.3.0",
     "discord.js": "^11.4.2",
     "ffmpeg": "0.0.4",
     "ffmpeg-binaries": "^4.0.0",
