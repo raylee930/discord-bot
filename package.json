@@ -1,11 +1,12 @@
 {
   "name": "discord-bot",
-  "productName": "Discord Bot - Controls",
+  "productName": "Discord Bot",
   "version": "0.1.0",
-  "description": "Discord Bot - Controls",
+  "description": "Discord Bot",
   "main": "bot.js",
   "author": {
-    "name": "DBC"
+    "name": "DBC",
+    "email": "Contact@zitxus.com"
   },
   "scripts": {
     "start": "node bot"
@@ -14,7 +15,6 @@
     "console-timestamp": "^0.3.0",
     "discord.js": "^11.4.2",
     "ffmpeg": "0.0.4",
-    "ffmpeg-binaries": "^4.0.0",
     "moment": "^2.23.0",
     "ms": "^2.1.1",
     "opusscript": "0.0.6",

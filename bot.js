@@ -1,3 +1,4 @@
+// Fancy Logo
 const fs = require("fs");
 FFMPEG = require('ffmpeg');
 const ms = require("ms");
@@ -10,30 +11,11 @@ const search = require('yt-search');
 const configs = require("./configs.json");
 const timestamp = require("console-timestamp");
 var botConfigs = {
-    token: "0123456789abcdef", //Token
-    prefix: "!", //指令前綴
-    gameStatus: "GameName", //遊玩的遊戲名稱
+    token: "0123456789abcdef",  //Token
+    prefix: "!",
+    gameStatus: "GaneName",  //遊玩的遊戲名稱
     statusType: "PLAYING",
-    commands: [
-    {
-        "id": 1,
-        "command": "test",
-        "message": "Hello World!",
-        "embed": false
-    },
-    {
-        "id": 2,
-        "command": "embedmsg",
-        "message": "",
-        "embed": true,
-        "embedFields": [
-            {
-                "title": "Title",
-                "text": "Content"
-            }
-        ]
-    }
-],
+    commands: [],
     plugins: [
     {
         "id": 0,
@@ -254,22 +236,47 @@ var botConfigs = {
             "note": "Gives the joining user a role",
             "requirements": ""
         }
+    },
+    {
+        "id": 20,
+        "name": "Giphy",
+        "activated": false,
+        "config": "gif",
+        "info": {
+            "example": "",
+            "note": "sends a gif",
+            "requirements": ""
+        }
+    },
+    {
+        "id": 21,
+        "name": "Temporary Role",
+        "activated": false,
+        "config": "",
+        "info": {
+            "example": "!temprole @PiRo @Member 1m",
+            "note": "This plugin was made by PiRo",
+            "requirements": "Create a logs channel"
+        }
     }
 ],
-    welcomemessage: { 
-    "channelid": "0123456789", //歡迎訊息頻道ID
-    "text": "Welcome to this Server!" //歡迎訊息
+    welcomemessage: {
+    "channelid": "",
+    "text": ""
 },
-    weather: { 
-    "degree": "C" //天氣單位
+    weather: {
+    "degree": "C"
 },
     autorole: {
     "guildID": "",
     "autoroleID": ""
-}, //AutoRoleID: { "RoleID": "" },
+},
     ticketsystem: {
     "ticketCategoryID": "",
     "createTicketChannelID": ""
+},
+    gif: {
+    "APIKEY": ""
 }
 };
 
@@ -321,16 +328,38 @@ client.on('guildMemberAdd', async function (member) {
 });
 
 
-client.on("message", async function(message) {
+client.on("message", async function (message) {
     if (botConfigs.plugins[11].activated == true) {
-        configs.bannedWords.forEach(async function(element) {
-            if (message.content.includes(element)) {
-                message.delete().catch(O_o => {});
-                let projectData = await handler.getProjectData();
-                message.author.send(projectData.bannedwords.responseMessage);
-                return;
+        //if (botConfigs.bannedwords.channelid.length > 0) {
+            configs.bannedWords.forEach(async function (element) {
+                let msg = message.content.toLowerCase();
+                if (msg.includes(element)) {
+                    message.delete().catch(O_o => { });
+                    let projectData = await botConfigs;
+                    let Dmchannel = client.users.get(message.author.id);
+                        if (!Dmchannel) {
+                            return;
+                        }
+                    
+                    Dmchannel.send(projectData.bannedwords.responseMessage);
+                    let pjc = projectData.bannedwords.channelid;
+
+                    if (pjc == "" || pjc == null || pjc == undefined) {
+                        return;
+                    }
+                    if (botConfigs.bannedwords.channelid.length > 10) {
+                   let CH = client.channels.get(pjc).catch(O => {})
+                        let embed = new Discord.RichEmbed()
+                        .setDescription("~Banned word~")
+                        .setColor("#e56b00")
+                        .addField("Message: ", `${msg}`)
+                        .addField("Send By", `<@${message.author.id}> with ID ${message.author.id}`)
+                        .addField("Sent In", message.channel)
+                        .addField("Time", message.createdAt);
+                         CH.send(embed);
+                }
             }
-        });
+        })
     }
 
     let prefix = botConfigs.prefix;
@@ -404,7 +433,70 @@ client.on("message", async function(message) {
         message.guild.member(bUser).kick(bReason);
         channel.send(banEmbed);
     }
-
+	
+    if(command === 'temprole' && botConfigs.plugins[21].activated == true) {
+    
+    if(!message.member.hasPermission('MANAGE_ROLES')) return message.reply('You do not have required permission');
+    
+    if(!message.guild.members.get(client.user.id).hasPermission('MANAGE_ROLES')) return message.reply("I don't have `MANAGE ROLES` Permission")
+    
+    if(!args[0]) return message.reply('You should spcefic [User] [Role] [Time]');
+    
+    let user = message.mentions.members.first() || message.guild.members.get(args[0]);
+    
+    if(!user) return  message.reply('You Should Mention User or User ID');
+    
+    let role = message.mentions.roles.first() || message.guild.roles.get(args[1]);
+    
+    if(!role) return message.reply('You Should Mention Role or Role ID');
+    
+    if(user.roles.has(role.id)) return message.reply(`This User ${user.user.tag} Already Have \`${role.name}\` Role`)
+    
+    let time = ms(args[2]);
+    
+    if(!time) return message.reply('Spcefic Time');
+    
+    let channel = message.guild.channels.find(ch => ch.name === 'logs');
+    
+    if(!channel) return message.reply("Can't find a **`logs`** channel.");
+    
+    try {
+      await user.addRole(role.id);
+      channel.send(
+        new Discord.RichEmbed()
+          .setTitle("~ Temporary Role Added ~")
+          .setColor(0x00e676)
+          .addField('Added By?', message.author.tag + `(${message.member})`)
+          .addField('Role', role)
+          .addField('Added To?', user.user.tag + (`${user.user}`))
+          .addField('Duration', ms(time))
+          .setThumbnail(user.user.displayAvatarURL)
+      ).then(() => {
+        message.reply(`Role **\`${role.name}\`** Added To ${user.user.tag}(${user.user}) For ${ms(time)}`).then(m => {
+          m.delete(5000)
+        })
+      });
+    } catch(e) {
+      message.reply(`Unexpected Error: ${e.message}`);
+    }
+    
+    setTimeout(async () => {
+      if(!user.roles.has(role.id)) return;
+        await user.removeRole(role.id);
+        channel.send(
+          new Discord.RichEmbed()
+          .setTitle("~ Role Removed ~")
+          .setColor(0xff5252)
+          .addField('Removed By?', client.user + ' (Bot)')
+          .addField('Role', role)
+          .addField('Removed From?', user.user.tag + (`${user.user}`))
+          .addField('Reason', "Time's up")
+          .setThumbnail(user.user.displayAvatarURL)
+        )
+    }, time)
+    
+  }
+	
     if (command === "ban" && botConfigs.plugins[3].activated == true) {
         let bUser = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
         if (!bUser) return message.channel.send("Can't find user!");
@@ -705,10 +797,10 @@ client.on("message", async function(message) {
 
             botConfigs.plugins.forEach(element => {
                 if (element.activated == true) {
-                    helpACT.push("âœ”" + element.name)
+                    helpACT.push("✔" + element.name)
                     plugin = helpACT.join('\n').toString();
                 } else if (element.activated == false) {
-                    helpNACT.push("âœ–" + element.name)
+                    helpNACT.push("✖" + element.name)
                     Nplugin = helpNACT.join('\n').toString();
               } 
             });
